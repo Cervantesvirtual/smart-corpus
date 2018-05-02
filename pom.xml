@@ -3,8 +3,8 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.springframework</groupId>
-	<artifactId>gs-serving-web-content</artifactId>
+	<groupId>com.cervantesvirtual</groupId>
+	<artifactId>smart-corpus</artifactId>
 	<version>0.1.0</version>
 	<packaging>war</packaging>
 	
@@ -82,7 +82,7 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
-		<finalName>gs-serving-web-content</finalName>
+		<finalName>smart-corpus</finalName>
 	</build>
 
 </project>
