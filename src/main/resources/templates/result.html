@@ -8,6 +8,18 @@
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    
+    <style>
+    .footer {
+	    position: absolute;
+	    bottom: 0;
+	    width: 100%;
+	    height: 60px;
+	    line-height: 60px;
+	    background-color: #f5f5f5;
+    }
+    </style>
+    
 </head>
 <body>
 
@@ -31,35 +43,48 @@
       </div>
     </nav>
 
-    <div class="container">
-        <div class="row">
-            <div class="col">
-				<h1>Listado de resultados</h1>
-		    </div>
-		</div>
+    <div class="container" style="margin-top: 80px;">
 				
 		<div class="row">
 		     <div class="col-8">
-                <h2>Concordancias</h2>
-			    <ul>
-			        <li th:each="s : ${searchModel.hits}" th:utext="|${s}|"></li>
-			    </ul>
+                <div class="card">
+					  <div class="card-header">
+					    Listado de resultados
+					  </div>
+					  <div class="card-body">
+					    <h5 class="card-title">Concordancias</h5>
+                        <p class="card-text" th:each="s : ${searchModel.hits}" th:utext="|${s}|"></p>
+                       </div>
+				 </div>
              </div>
 		
              <div class="col-4">
-                <h2>Estadísticas</h2>
-			    
-			    <p th:text="'Texto de búsqueda: ' + ${searchModel.queryString}" />
-			    <p th:text="'Longitud media del campo (AvgFieldLength): ' + ${searchModel.stats.avgFieldLength}" />
-			    <p th:text="'Número total de tokens en el campo (NumberOfFieldTokens): ' + ${searchModel.stats.numberOfFieldTokens}" />
-			    <p th:text="'Número de documentos:  ' + ${searchModel.stats.numberOfDocuments}" />
-			    <p th:text="'Número de documentos que contiene al menos una ocurrencia del término (docFreq): ' + ${searchModel.stats.docFreq}" />
-			    <p th:text="'Número de ocurrencias del término en todos los documentos (TotalTermFreq): ' + ${searchModel.stats.totalTermFreq}" />
-			    
-			    <a href="corpus">Realizar otra búsqueda</a>
+             
+	             <div class="card">
+					  <div class="card-header">
+					    Estadísticas
+					  </div>
+					  <div class="card-body">
+					    <h5 class="card-title" th:text="'Texto de búsqueda: ' + ${searchModel.queryString}">Special title treatment</h5>
+					    <p class="card-text" th:text="'Longitud media del campo (AvgFieldLength): ' + ${searchModel.stats.avgFieldLength}" />
+					    <p class="card-text" th:text="'Número total de tokens en el campo (NumberOfFieldTokens): ' + ${searchModel.stats.numberOfFieldTokens}" />
+					    <p class="card-text" th:text="'Número de documentos:  ' + ${searchModel.stats.numberOfDocuments}" />
+					    <p class="card-text" th:text="'Número de documentos que contiene al menos una ocurrencia del término (docFreq): ' + ${searchModel.stats.docFreq}" th:if="${searchModel.stats.docFreq > 0}"/>
+					    <p class="card-text" th:text="'Número de ocurrencias del término en todos los documentos (TotalTermFreq): ' + ${searchModel.stats.totalTermFreq}" th:if="${searchModel.stats.totalTermFreq > 0}"/>
+					    <a href="corpus" class="btn btn-danger">Realizar otra búsqueda </a>
+					  </div>
+				 </div>
+             
              </div>
              
         </div>    
-	</div>	
+	</div>
+	
+	<footer class="footer">
+      <div class="container">
+        <span class="text-muted">Biblioteca Virtual Miguel de Cervantes</span>
+      </div>
+    </footer>
+		
 </body>
 </html>

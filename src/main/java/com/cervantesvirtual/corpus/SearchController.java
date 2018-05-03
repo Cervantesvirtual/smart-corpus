@@ -24,8 +24,7 @@ public class SearchController {
 		try {
 			searchFiles.search(searchModel);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Error searching:" + e.getMessage());
 		}
         return "result";
     }
