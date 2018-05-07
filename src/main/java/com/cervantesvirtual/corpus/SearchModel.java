@@ -9,7 +9,7 @@ public class SearchModel {
     private String queryString;
     private BasicStats stats;
     private int hitsPerPage;
-    private List<String> hits;
+    private List<ResultItem> hits;
     
     public SearchModel(){
     	hitsPerPage = 10;
@@ -39,11 +39,11 @@ public class SearchModel {
 		this.hitsPerPage = hitsPerPage;
 	}
 
-	public List<String> getHits() {
+	public List<ResultItem> getHits() {
 		return hits;
 	}
 
-	public void setHits(List<String> hits) {
+	public void setHits(List<ResultItem> hits) {
 		this.hits = hits;
 	}
 

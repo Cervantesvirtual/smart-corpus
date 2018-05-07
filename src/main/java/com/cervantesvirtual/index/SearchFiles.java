@@ -34,6 +34,7 @@ import org.apache.lucene.search.similarities.BasicStats;
 import org.apache.lucene.store.FSDirectory;
 
 import com.cervantesvirtual.analyzer.SynonymSearchAnalyzer;
+import com.cervantesvirtual.corpus.ResultItem;
 import com.cervantesvirtual.corpus.SearchModel;
 
 /** Simple command-line based search demo. */
@@ -239,19 +240,14 @@ public class SearchFiles {
 		myStats.setDocFreq(docFreq);
 		myStats.setTotalTermFreq(totalTermFreq);
 
-		/*System.out.println("myStats.getAvgFieldLength():" + myStats.getAvgFieldLength());
-		System.out.println("myStats.numberOfFieldTokens():" + myStats.getNumberOfFieldTokens());
-		System.out.println("myStats.NumberOfDocuments():" + myStats.getNumberOfDocuments());
-		System.out.println("myStats.docFreq():" + myStats.getDocFreq());
-		System.out.println("myStats.getTotalTermFreq():" + myStats.getTotalTermFreq());*/
-
 		return myStats;
 	}
 
-	public static List<String> highlightResults(IndexReader reader, IndexSearcher searcher, Query query, TopDocs hits,
+	public static List<ResultItem> highlightResults(IndexReader reader, IndexSearcher searcher, Query query, TopDocs hits,
 			Analyzer analyzer) throws IOException, InvalidTokenOffsetsException {
 
-		List<String> results = new ArrayList<String>();
+		List<ResultItem> results = new ArrayList<ResultItem>();
+		
 		// Uses HTML &lt;B&gt;&lt;/B&gt; tag to highlight the searched terms
 		Formatter formatter = new SimpleHTMLFormatter();
 
@@ -274,12 +270,22 @@ public class SearchFiles {
 
 		// Iterate over found results
 		for (int i = 0; i < hits.scoreDocs.length; i++) {
+			
+			List<String> paragraphs = new ArrayList<String>();
+			
 			int docid = hits.scoreDocs[i].doc;
 			Document doc = searcher.doc(docid);
-			String title = doc.get("path");
-
+			String path = doc.get("path");
+			String title = doc.get("title");
+			String author = doc.get("author");
+			
+			ResultItem item = new ResultItem();
+			item.setTitle(title);
+			item.setAuthor(author);
+			item.setParagraphs(paragraphs);
+			
 			// Printing - to which document result belongs
-			System.out.println("Path " + " : " + title);
+			System.out.println("Path " + " : " + path);
 
 			// Get stored text from found document
 			String text = doc.get("contents");
@@ -290,8 +296,10 @@ public class SearchFiles {
 			// Get highlighted text fragments
 			String[] frags = highlighter.getBestFragments(stream, text, 20);
 			for (String f : frags) {
-				results.add(f);
+				paragraphs.add(f);
 			}
+			
+			results.add(item);
 		}
 		
 		return results;

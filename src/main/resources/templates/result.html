@@ -51,10 +51,10 @@
 					  <div class="card-header">
 					    Listado de resultados
 					  </div>
-					  <div class="card-body">
-					    <h5 class="card-title">Concordancias</h5>
-                        <p class="card-text" th:each="s : ${searchModel.hits}" th:utext="|${s}|"></p>
-                       </div>
+					  <div class="card-body" th:each="hit : ${searchModel.hits}">
+					    <h5 class="card-title" th:text="${hit.title + ' | ' + hit.author}"></h5>
+                        <p class="card-text" th:each="t : ${hit.paragraphs}" th:utext="${t}" />
+                      </div>
 				 </div>
              </div>
 		
@@ -71,7 +71,7 @@
 					    <p class="card-text" th:text="'Número de documentos:  ' + ${searchModel.stats.numberOfDocuments}" />
 					    <p class="card-text" th:text="'Número de documentos que contiene al menos una ocurrencia del término (docFreq): ' + ${searchModel.stats.docFreq}" th:if="${searchModel.stats.docFreq > 0}"/>
 					    <p class="card-text" th:text="'Número de ocurrencias del término en todos los documentos (TotalTermFreq): ' + ${searchModel.stats.totalTermFreq}" th:if="${searchModel.stats.totalTermFreq > 0}"/>
-					    <a href="corpus" class="btn btn-danger">Realizar otra búsqueda </a>
+					    <a href="corpus" class="btn btn-danger">Realizar otra búsqueda</a>
 					  </div>
 				 </div>
              

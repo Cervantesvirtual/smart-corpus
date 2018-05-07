@@ -37,29 +37,9 @@ public class IndexFiles {
 
   /** Index all text files under a directory. */
   public static void main(String[] args) {
-    /*String usage = "java org.apache.lucene.demo.IndexFiles"
-                 + " [-index INDEX_PATH] [-docs DOCS_PATH] [-update]\n\n"
-                 + "This indexes the documents in DOCS_PATH, creating a Lucene index"
-                 + "in INDEX_PATH that can be searched with SearchFiles";*/
     String indexPath = "index";
     String docsPath = "src/main/resources/txtfiles";
     boolean create = true;
-    /*for(int i=0;i<args.length;i++) {
-      if ("-index".equals(args[i])) {
-        indexPath = args[i+1];
-        i++;
-      } else if ("-docs".equals(args[i])) {
-        docsPath = args[i+1];
-        i++;
-      } else if ("-update".equals(args[i])) {
-        create = false;
-      }
-    }
-
-    if (docsPath == null) {
-      System.err.println("Usage: " + usage);
-      System.exit(1);
-    }*/
 
     final Path docDir = Paths.get(docsPath);
     if (!Files.isReadable(docDir)) {
@@ -160,6 +140,20 @@ public class IndexFiles {
       Field pathField = new StringField("path", file.toString(), Field.Store.YES);
       doc.add(pathField);
       
+      String title = "";
+      String author = "";
+      if("src/main/resources/txtfiles/ff498544-82b1-11df-acc7-002185ce6064.txt".equals(file.toString())){
+    	  title = "Doña perfecta";
+    	  author = "Pérez Galdós, Benito";
+      }
+      System.out.println("Indexing:" + title);
+            
+      Field titleField = new StringField("title", title, Field.Store.YES);
+      doc.add(titleField);
+      
+      Field authorField = new StringField("author", author, Field.Store.YES);
+      doc.add(authorField);
+      
       // Add the last modified date of the file a field named "modified".
       // Use a LongPoint that is indexed (i.e. efficiently filterable with
       // PointRangeQuery).  This indexes to milli-second resolution, which
@@ -168,6 +162,8 @@ public class IndexFiles {
       // For example the long value  would mean
       // February , , - PM.
       doc.add(new LongPoint("modified", lastModified));
+      
+      
       
       // Add the contents of the file to a field named "contents".  Specify a Reader,
       // so that the text of the file is tokenized and indexed, but not stored.
