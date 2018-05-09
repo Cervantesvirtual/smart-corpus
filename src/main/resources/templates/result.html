@@ -4,20 +4,13 @@
     <title>Corpus Biblioteca Virtual Miguel de Cervantes</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"></link>
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css"></link>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
     
     <style>
-    .footer {
-	    position: absolute;
-	    bottom: 0;
-	    width: 100%;
-	    height: 60px;
-	    line-height: 60px;
-	    background-color: #f5f5f5;
-    }
+    .card-text {text-align: justify;}
     </style>
     
 </head>
@@ -65,12 +58,12 @@
 					    Estadísticas
 					  </div>
 					  <div class="card-body">
-					    <h5 class="card-title" th:text="'Texto de búsqueda: ' + ${searchModel.queryString}">Special title treatment</h5>
-					    <p class="card-text" th:text="'Longitud media del campo (AvgFieldLength): ' + ${searchModel.stats.avgFieldLength}" />
-					    <p class="card-text" th:text="'Número total de tokens en el campo (NumberOfFieldTokens): ' + ${searchModel.stats.numberOfFieldTokens}" />
-					    <p class="card-text" th:text="'Número de documentos:  ' + ${searchModel.stats.numberOfDocuments}" />
-					    <p class="card-text" th:text="'Número de documentos que contiene al menos una ocurrencia del término (docFreq): ' + ${searchModel.stats.docFreq}" th:if="${searchModel.stats.docFreq > 0}"/>
-					    <p class="card-text" th:text="'Número de ocurrencias del término en todos los documentos (TotalTermFreq): ' + ${searchModel.stats.totalTermFreq}" th:if="${searchModel.stats.totalTermFreq > 0}"/>
+					    <h5 class="card-title">Texto de búsqueda: <span th:text="${searchModel.queryString}"></span></h5>
+					    <p class="card-text">Longitud media del campo <span class="badge badge-info">AvgFieldLength</span>: <span th:text="${searchModel.stats.avgFieldLength}"></span></p>
+					    <p class="card-text">Número total de tokens en el campo <span class="badge badge-info">NumberOfFieldTokens</span>: <span th:text="${searchModel.stats.numberOfFieldTokens}"></span></p>
+					    <p class="card-text">Número de documentos: <span th:text="${searchModel.stats.numberOfDocuments}"></span></p>
+					    <p class="card-text">Número de documentos que contiene al menos una ocurrencia del término <span class="badge badge-info">docFreq</span>: <span th:text="${searchModel.stats.docFreq}" th:if="${searchModel.stats.docFreq > 0}"></span></p>
+  					    <p class="card-text">Número de ocurrencias del término en todos los documentos <span class="badge badge-info">TotalTermFreq</span>: <span th:text="${searchModel.stats.totalTermFreq}" th:if="${searchModel.stats.totalTermFreq > 0}"></span></p>
 					    <a href="corpus" class="btn btn-danger">Realizar otra búsqueda</a>
 					  </div>
 				 </div>
@@ -79,12 +72,6 @@
              
         </div>    
 	</div>
-	
-	<footer class="footer">
-      <div class="container">
-        <span class="text-muted">Biblioteca Virtual Miguel de Cervantes</span>
-      </div>
-    </footer>
 		
 </body>
 </html>

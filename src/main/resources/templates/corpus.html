@@ -4,21 +4,11 @@
     <title>Corpus Biblioteca Virtual Miguel de Cervantes</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
  
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"></link>
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css"></link>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
     
-    <style>
-    .footer {
-	    position: absolute;
-	    bottom: 0;
-	    width: 100%;
-	    height: 60px;
-	    line-height: 60px;
-	    background-color: #f5f5f5;
-    }
-    </style>
 </head>
 <body>
 
@@ -82,12 +72,156 @@
         </form>
         
     </div>
+    
+    <div class="container">
+        <h2>Búsquedas de partes de la oración <span class="badge badge-secondary">pos#</span></h2>
 
+	    <div class="card-columns">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Adjectivo</h5>
+                    <form class="form my-2 my-lg-0" action="#" th:action="@{/corpus}" th:object="${searchModel}" method="post">
+			          <input type="hidden" name="queryString" value="pos#adjective"/>
+			          <input type="hidden" th:field="*{hitsPerPage}" th:value="*{hitsPerPage}" />
+			          <button class="btn btn-outline-danger my-2 my-sm-0" type="submit">pos#adjective</button>
+			        </form>
+                    <a href="https://talp-upc.gitbooks.io/freeling-4-0-user-manual/content/tagsets/tagset-es.html#part-of-speech-adjective" target="_blank" class="card-link">Leer más</a>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Conjunción</h5>
+                    <form class="form my-2 my-lg-0" action="#" th:action="@{/corpus}" th:object="${searchModel}" method="post">
+			          <input type="hidden" name="queryString" value="pos#conjunction"/>
+			          <input type="hidden" th:field="*{hitsPerPage}" th:value="*{hitsPerPage}" />
+			          <button class="btn btn-outline-danger my-2 my-sm-0" type="submit">pos#conjunction</button>
+			        </form>
+                    <a href="https://talp-upc.gitbooks.io/freeling-4-0-user-manual/content/tagsets/tagset-es.html#part-of-speech-conjunction" target="_blank" class="card-link">Leer más</a>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Determinante</h5>
+                    <form class="form my-2 my-lg-0" action="#" th:action="@{/corpus}" th:object="${searchModel}" method="post">
+			          <input type="hidden" name="queryString" value="pos#determiner"/>
+			          <input type="hidden" th:field="*{hitsPerPage}" th:value="*{hitsPerPage}" />
+			          <button class="btn btn-outline-danger my-2 my-sm-0" type="submit">pos#determiner</button>
+			        </form>
+                    <a href="https://talp-upc.gitbooks.io/freeling-4-0-user-manual/content/tagsets/tagset-es.html#part-of-speech-determiner" target="_blank" class="card-link">Leer más</a>
+                </div>
+            </div>            
+        </div>
+        
+        <div class="card-columns">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Nombre</h5>
+                    <form class="form my-2 my-lg-0" action="#" th:action="@{/corpus}" th:object="${searchModel}" method="post">
+			          <input type="hidden" name="queryString" value="pos#noun"/>
+			          <input type="hidden" th:field="*{hitsPerPage}" th:value="*{hitsPerPage}" />
+			          <button class="btn btn-outline-danger my-2 my-sm-0" type="submit">pos#noun</button>
+			        </form>
+                    <a href="https://talp-upc.gitbooks.io/freeling-4-0-user-manual/content/tagsets/tagset-es.html#part-of-speech-noun" target="_blank" class="card-link">Leer más</a>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Pronombre</h5>
+                    <form class="form my-2 my-lg-0" action="#" th:action="@{/corpus}" th:object="${searchModel}" method="post">
+			          <input type="hidden" name="queryString" value="pos#pronoun"/>
+			          <input type="hidden" th:field="*{hitsPerPage}" th:value="*{hitsPerPage}" />
+			          <button class="btn btn-outline-danger my-2 my-sm-0" type="submit">pos#pronoun</button>
+			        </form>
+                    <a href="https://talp-upc.gitbooks.io/freeling-4-0-user-manual/content/tagsets/tagset-es.html#part-of-speech-pronoun" target="_blank" class="card-link">Leer más</a>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Adverbio</h5>
+                    <form class="form my-2 my-lg-0" action="#" th:action="@{/corpus}" th:object="${searchModel}" method="post">
+			          <input type="hidden" name="queryString" value="pos#adverb"/>
+			          <input type="hidden" th:field="*{hitsPerPage}" th:value="*{hitsPerPage}" />
+			          <button class="btn btn-outline-danger my-2 my-sm-0" type="submit">pos#adverb</button>
+			        </form>
+                    <a href="https://talp-upc.gitbooks.io/freeling-4-0-user-manual/content/tagsets/tagset-es.html#part-of-speech-adverb" target="_blank" class="card-link">Leer más</a>
+                </div>
+            </div>            
+        </div>
+        
+        <div class="card-columns">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Adposición</h5>
+                    <form class="form my-2 my-lg-0" action="#" th:action="@{/corpus}" th:object="${searchModel}" method="post">
+			          <input type="hidden" name="queryString" value="pos#adposition"/>
+			          <input type="hidden" th:field="*{hitsPerPage}" th:value="*{hitsPerPage}" />
+			          <button class="btn btn-outline-danger my-2 my-sm-0" type="submit">pos#adposition</button>
+			        </form>
+                    <a href="https://talp-upc.gitbooks.io/freeling-4-0-user-manual/content/tagsets/tagset-es.html#part-of-speech-adposition" target="_blank" class="card-link">Leer más</a>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Verbo</h5>
+                    <form class="form my-2 my-lg-0" action="#" th:action="@{/corpus}" th:object="${searchModel}" method="post">
+			          <input type="hidden" name="queryString" value="pos#verb"/>
+			          <input type="hidden" th:field="*{hitsPerPage}" th:value="*{hitsPerPage}" />
+			          <button class="btn btn-outline-danger my-2 my-sm-0" type="submit">pos#verb</button>
+			        </form>
+                    <a href="https://talp-upc.gitbooks.io/freeling-4-0-user-manual/content/tagsets/tagset-es.html#part-of-speech-pronoun" target="_blank" class="card-link">Leer más</a>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Interjección</h5>
+                    <form class="form my-2 my-lg-0" action="#" th:action="@{/corpus}" th:object="${searchModel}" method="post">
+			          <input type="hidden" name="queryString" value="pos#interjection"/>
+			          <input type="hidden" th:field="*{hitsPerPage}" th:value="*{hitsPerPage}" />
+			          <button class="btn btn-outline-danger my-2 my-sm-0" type="submit">pos#interjection</button>
+			        </form>
+                    <a href="https://talp-upc.gitbooks.io/freeling-4-0-user-manual/content/tagsets/tagset-es.html#part-of-speech-interjection" target="_blank" class="card-link">Leer más</a>
+                </div>
+            </div>            
+        </div>
+        
+        <h2>Búsquedas por lema <span class="badge badge-secondary">Lemma#</span></h2>
 
-    <footer class="footer">
-      <div class="container">
-        <span class="text-muted">Biblioteca Virtual Miguel de Cervantes</span>
-      </div>
-    </footer>
+	    <div class="card-columns">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Lema</h5>
+                    <form class="form my-2 my-lg-0" action="#" th:action="@{/corpus}" th:object="${searchModel}" method="post">
+			          <input type="hidden" name="queryString" value="lemma#ver"/>
+			          <input type="hidden" th:field="*{hitsPerPage}" th:value="*{hitsPerPage}" />
+			          <button class="btn btn-outline-danger my-2 my-sm-0" type="submit">lemma#ver</button>
+			        </form>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Lema</h5>
+                    <form class="form my-2 my-lg-0" action="#" th:action="@{/corpus}" th:object="${searchModel}" method="post">
+			          <input type="hidden" name="queryString" value="lemma#decir"/>
+			          <input type="hidden" th:field="*{hitsPerPage}" th:value="*{hitsPerPage}" />
+			          <button class="btn btn-outline-danger my-2 my-sm-0" type="submit">lemma#decir</button>
+			        </form>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Lema</h5>
+                    <form class="form my-2 my-lg-0" action="#" th:action="@{/corpus}" th:object="${searchModel}" method="post">
+			          <input type="hidden" name="queryString" value="lemma#haber"/>
+			          <input type="hidden" th:field="*{hitsPerPage}" th:value="*{hitsPerPage}" />
+			          <button class="btn btn-outline-danger my-2 my-sm-0" type="submit">lemma#haber</button>
+			        </form>
+                </div>
+            </div>            
+        </div>
+        
+        
+	</div>
+
+    
 </body>
 </html>

@@ -259,7 +259,7 @@ public class SearchFiles {
 		Highlighter highlighter = new Highlighter(formatter, scorer);
 
 		// It breaks text up into same-size texts but does not split up spans
-		Fragmenter fragmenter = new SimpleSpanFragmenter(scorer, 100);
+		Fragmenter fragmenter = new SimpleSpanFragmenter(scorer, 50);
 
 		// breaks text up into same-size fragments with no concerns over
 		// spotting sentence boundaries.
