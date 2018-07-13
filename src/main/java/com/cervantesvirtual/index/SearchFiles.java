@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
@@ -29,279 +28,294 @@ import org.apache.lucene.search.highlight.InvalidTokenOffsetsException;
 import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
 import org.apache.lucene.search.highlight.SimpleSpanFragmenter;
+import org.apache.lucene.search.highlight.TextFragment;
 import org.apache.lucene.search.highlight.TokenSources;
 import org.apache.lucene.search.similarities.BasicStats;
 import org.apache.lucene.store.FSDirectory;
 
 import com.cervantesvirtual.analyzer.SynonymSearchAnalyzer;
+import com.cervantesvirtual.analyzer.TextAnalyzer;
 import com.cervantesvirtual.corpus.ResultItem;
 import com.cervantesvirtual.corpus.SearchModel;
 
 /** Simple command-line based search demo. */
 public class SearchFiles {
 
-	private String index = "/var/lucene/hibernate/corpusbvmc";
-	private String field = "contents";
+    private String index = "/var/lucene/hibernate/corpusbvmc";
+    private String field = "contents";
+    private String field_simple = "contents-simple";
 
-	public SearchFiles() {
-	}
+    public SearchFiles() {
+    }
 
-	public SearchModel search(SearchModel searchModel) throws Exception {
-		
-		IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
-		IndexSearcher searcher = new IndexSearcher(reader);
-		
-		String queryString = searchModel.getQueryString();
-		queryString = queryString.trim();
-		
-		Term term = new Term(field, queryString);
-		searchModel.setStats(getBasicStats(reader, term, 0));
-		
-		if (queryString.contains("#")){
-			
-			SynonymSearchAnalyzer analyzer = new SynonymSearchAnalyzer();
+    public SearchModel search(SearchModel searchModel) throws Exception {
+        
+        IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
+        IndexSearcher searcher = new IndexSearcher(reader);
+        
+        String queryString = searchModel.getQueryString();
+        queryString = queryString.trim();
+        
+        if (queryString.contains("#")){
+            
+            Term term = new Term(field, queryString);
+            searchModel.setStats(getBasicStats(reader, term, 0));
+            
+            SynonymSearchAnalyzer analyzer = new SynonymSearchAnalyzer();
 
-			TokenStreamToTermAutomatonQuery q = new TokenStreamToTermAutomatonQuery();
-			TermAutomatonQuery autQuery = q.toQuery(field,
-					analyzer.tokenStream(field, queryString));
-			
-			TopDocs hits = searcher.search(autQuery, 10);
-			
-			searchModel.setHits(highlightResults(reader, searcher, autQuery, hits, new SynonymSearchAnalyzer()));
-			
-			analyzer.close();
-			
-		}else{
-			Analyzer analyzer = new WhitespaceAnalyzer();
-			QueryParser parser = new QueryParser(field, analyzer);
+            TokenStreamToTermAutomatonQuery q = new TokenStreamToTermAutomatonQuery();
+            TermAutomatonQuery autQuery = q.toQuery(field,
+                    analyzer.tokenStream(field, queryString));
+            
+            TopDocs hits = searcher.search(autQuery, 10);
+            
+            searchModel.setHits(highlightResults(reader, searcher, autQuery, hits, new SynonymSearchAnalyzer(), field, searchModel.getFragmentSize(), searchModel.getFragmentNumber()));
+            
+            analyzer.close();
+            
+        }else{
+            Term term = new Term(field_simple, queryString);
+            searchModel.setStats(getBasicStats(reader, term, 0));
+            
+            Analyzer analyzer = new TextAnalyzer();
+            QueryParser parser = new QueryParser(field_simple, analyzer);
             Query query = parser.parse(queryString);
-			System.out.println("Searching for: " + query.toString(field));
+            System.out.println("Searching for: " + query.toString());
 
-			// doPagingSearch(in, searcher, query, hitsPerPage, raw, queries ==
-			// null && queryString == null);
-			TopDocs hits = searcher.search(query, 5 * searchModel.getHitsPerPage());
-			
-			searchModel.setHits(highlightResults(reader, searcher, query, hits, new WhitespaceAnalyzer()));
+            // doPagingSearch(in, searcher, query, hitsPerPage, raw, queries ==
+            // null && queryString == null);
+            TopDocs hits = searcher.search(query, 5 * searchModel.getHitsPerPage());
+            
+            searchModel.setHits(highlightResults(reader, searcher, query, hits, new TextAnalyzer(), field_simple, searchModel.getFragmentSize(), searchModel.getFragmentNumber()));
 
-			analyzer.close();
-		}
-		
-		reader.close();
-		
-		return searchModel;
-	}
+            analyzer.close();
+        }
+        
+        reader.close();
+        
+        return searchModel;
+    }
 
-	/**
-	 * This demonstrates a typical paging search scenario, where the search
-	 * engine presents pages of size n to the user. The user can then go to the
-	 * next page if interested in the next hits.
-	 * 
-	 * When the query is executed for the first time, then only enough results
-	 * are collected to fill result pages. If the user wants to page beyond this
-	 * limit, then the query is executed another time and all hits are
-	 * collected.
-	 * 
-	 */
-	public static void doPagingSearch(BufferedReader in, IndexSearcher searcher, Query query, int hitsPerPage,
-			boolean raw, boolean interactive) throws IOException {
+    
+    public static BasicStats getBasicStats(IndexReader indexReader, Term myTerm, float queryBoost) throws IOException {
+        String fieldName = myTerm.field();
 
-		// Collect enough docs to show pages
-		TopDocs results = searcher.search(query, 5 * hitsPerPage);
+        System.out.println("myTerm:" + myTerm.toString());
 
-		ScoreDoc[] hits = results.scoreDocs;
+        CollectionStatistics collectionStats = new CollectionStatistics(fieldName, indexReader.maxDoc(),
+                indexReader.getDocCount(fieldName), indexReader.getSumTotalTermFreq(fieldName),
+                indexReader.getSumDocFreq(fieldName));
 
-		int numTotalHits = Math.toIntExact(results.totalHits);
-		System.out.println(numTotalHits + " total matching documents");
+        TermStatistics termStats = new TermStatistics(myTerm.bytes(), indexReader.docFreq(myTerm),
+                indexReader.totalTermFreq(myTerm));
 
-		int start = 0;
-		int end = Math.min(numTotalHits, hitsPerPage);
+        BasicStats myStats = new BasicStats(fieldName, queryBoost);
+        assert collectionStats.sumTotalTermFreq() == -1
+                || collectionStats.sumTotalTermFreq() >= termStats.totalTermFreq();
+        long numberOfDocuments = collectionStats.maxDoc();
 
-		while (true) {
-			if (end > hits.length) {
-				System.out.println("Only results 1 - " + hits.length + " of " + numTotalHits
-						+ " total matching documents collected.");
-				System.out.println("Collect more (y/n) ?");
-				String line = in.readLine();
-				if (line.length() == 0 || line.charAt(0) == 'n') {
-					break;
-				}
+        long docFreq = termStats.docFreq();
+        long totalTermFreq = termStats.totalTermFreq();
 
-				hits = searcher.search(query, numTotalHits).scoreDocs;
-			}
+        if (totalTermFreq == -1) {
+            totalTermFreq = docFreq;
+        }
 
-			end = Math.min(hits.length, start + hitsPerPage);
+        final long numberOfFieldTokens;
+        final float avgFieldLength;
 
-			for (int i = start; i < end; i++) {
-				if (raw) { // output raw format
-					System.out.println("doc=" + hits[i].doc + " score=" + hits[i].score);
-					continue;
-				}
+        long sumTotalTermFreq = collectionStats.sumTotalTermFreq();
 
-				Document doc = searcher.doc(hits[i].doc);
-				String path = doc.get("path");
-				if (path != null) {
-					System.out.println((i + 1) + ". " + path);
-					String title = doc.get("title");
-					if (title != null) {
-						System.out.println("   Title: " + doc.get("title"));
-					}
-				} else {
-					System.out.println((i + 1) + ". " + "No path for this document");
-				}
+        if (sumTotalTermFreq <= 0) {
+            numberOfFieldTokens = docFreq;
+            avgFieldLength = 1;
+        } else {
+            numberOfFieldTokens = sumTotalTermFreq;
+            avgFieldLength = (float) numberOfFieldTokens / numberOfDocuments;
+        }
+        
+        myStats.setNumberOfDocuments(numberOfDocuments);
+        myStats.setNumberOfFieldTokens(numberOfFieldTokens);
+        myStats.setAvgFieldLength(avgFieldLength);
+        myStats.setDocFreq(docFreq);
+        myStats.setTotalTermFreq(totalTermFreq);
+        
+        return myStats;
+    }
 
-			}
+    public static List<ResultItem> highlightResults(IndexReader reader, IndexSearcher searcher, Query query, TopDocs hits,
+            Analyzer analyzer, String field, int fragmentSize, int fragmentNumber) throws IOException, InvalidTokenOffsetsException {
 
-			if (!interactive || end == 0) {
-				break;
-			}
+        List<ResultItem> results = new ArrayList<ResultItem>();
+        
+        // Uses HTML &lt;B&gt;&lt;/B&gt; tag to highlight the searched terms
+        Formatter formatter = new SimpleHTMLFormatter();
 
-			if (numTotalHits >= end) {
-				boolean quit = false;
-				while (true) {
-					System.out.print("Press ");
-					if (start - hitsPerPage >= 0) {
-						System.out.print("(p)revious page, ");
-					}
-					if (start + hitsPerPage < numTotalHits) {
-						System.out.print("(n)ext page, ");
-					}
-					System.out.println("(q)uit or enter number to jump to a page.");
+        // It scores text fragments by the number of unique query terms found
+        // Basically the matching score in layman terms
+        QueryScorer scorer = new QueryScorer(query);
 
-					String line = in.readLine();
-					if (line.length() == 0 || line.charAt(0) == 'q') {
-						quit = true;
-						break;
-					}
-					if (line.charAt(0) == 'p') {
-						start = Math.max(0, start - hitsPerPage);
-						break;
-					} else if (line.charAt(0) == 'n') {
-						if (start + hitsPerPage < numTotalHits) {
-							start += hitsPerPage;
-						}
-						break;
-					} else {
-						int page = Integer.parseInt(line);
-						if ((page - 1) * hitsPerPage < numTotalHits) {
-							start = (page - 1) * hitsPerPage;
-							break;
-						} else {
-							System.out.println("No such page");
-						}
-					}
-				}
-				if (quit)
-					break;
-				end = Math.min(numTotalHits, start + hitsPerPage);
-			}
-		}
-	}
+        // used to markup highlighted terms found in the best sections of a text
+        Highlighter highlighter = new Highlighter(formatter, scorer);
+        highlighter.setMaxDocCharsToAnalyze(Integer.MAX_VALUE);
 
-	public static BasicStats getBasicStats(IndexReader indexReader, Term myTerm, float queryBoost) throws IOException {
-		String fieldName = myTerm.field();
+        // It breaks text up into same-size texts but does not split up spans
+        Fragmenter fragmenter = new SimpleSpanFragmenter(scorer, fragmentSize);
 
-		System.out.println("myTerm:" + myTerm.toString());
+        // breaks text up into same-size fragments with no concerns over
+        // spotting sentence boundaries.
+        // Fragmenter fragmenter = new SimpleFragmenter(10);
 
-		CollectionStatistics collectionStats = new CollectionStatistics("field", indexReader.maxDoc(),
-				indexReader.getDocCount(fieldName), indexReader.getSumTotalTermFreq(fieldName),
-				indexReader.getSumDocFreq(fieldName));
+        // set fragmenter to highlighter
+        highlighter.setTextFragmenter(fragmenter);
 
-		TermStatistics termStats = new TermStatistics(myTerm.bytes(), indexReader.docFreq(myTerm),
-				indexReader.totalTermFreq(myTerm));
+        // Iterate over found results
+        for (int i = 0; i < hits.scoreDocs.length; i++) {
+            
+            List<String> paragraphs = new ArrayList<String>();
+            
+            int docid = hits.scoreDocs[i].doc;
+            Document doc = searcher.doc(docid);
+            String path = doc.get("path");
+            String title = doc.get("title");
+            String author = doc.get("author");
+            String slug = doc.get("slug");
+            String wikidata = doc.get("wikidata");
+            String workdata = doc.get("workdata");
+            
+            ResultItem item = new ResultItem();
+            item.setTitle(title);
+            item.setAuthor(author);
+            item.setSlug(slug);
+            item.setWikidata(wikidata);
+            item.setWorkdata(workdata);
+            item.setParagraphs(paragraphs);
+            
+            // Printing - to which document result belongs
+            System.out.println("Path " + " : " + path);
 
-		BasicStats myStats = new BasicStats(fieldName, queryBoost);
-		assert collectionStats.sumTotalTermFreq() == -1
-				|| collectionStats.sumTotalTermFreq() >= termStats.totalTermFreq();
-		long numberOfDocuments = collectionStats.maxDoc();
+            // Get stored text from found document
+            String text = doc.get(field);
+            
+            // Create token stream
+            TokenStream tokenStream = TokenSources.getAnyTokenStream(searcher.getIndexReader(), docid, field, analyzer);
+            TextFragment[] frag = highlighter.getBestTextFragments(tokenStream, text, false, fragmentNumber);
+            for (int j = 0; j < frag.length; j++) {
+                if ((frag[j] != null) && (frag[j].getScore() > 0)) {
+                    paragraphs.add(frag[j].toString());
+                }
+            }
+            
+            results.add(item);
+        }
+        
+        return results;
+    }
+    
+    /**
+     * This demonstrates a typical paging search scenario, where the search
+     * engine presents pages of size n to the user. The user can then go to the
+     * next page if interested in the next hits.
+     * 
+     * When the query is executed for the first time, then only enough results
+     * are collected to fill result pages. If the user wants to page beyond this
+     * limit, then the query is executed another time and all hits are
+     * collected.
+     * 
+     */
+    public static void doPagingSearch(BufferedReader in, IndexSearcher searcher, Query query, int hitsPerPage,
+            boolean raw, boolean interactive) throws IOException {
 
-		long docFreq = termStats.docFreq();
-		long totalTermFreq = termStats.totalTermFreq();
+        // Collect enough docs to show pages
+        TopDocs results = searcher.search(query, 5 * hitsPerPage);
 
-		if (totalTermFreq == -1) {
-			totalTermFreq = docFreq;
-		}
+        ScoreDoc[] hits = results.scoreDocs;
 
-		final long numberOfFieldTokens;
-		final float avgFieldLength;
+        int numTotalHits = Math.toIntExact(results.totalHits);
+        System.out.println(numTotalHits + " total matching documents");
 
-		long sumTotalTermFreq = collectionStats.sumTotalTermFreq();
+        int start = 0;
+        int end = Math.min(numTotalHits, hitsPerPage);
 
-		if (sumTotalTermFreq <= 0) {
-			numberOfFieldTokens = docFreq;
-			avgFieldLength = 1;
-		} else {
-			numberOfFieldTokens = sumTotalTermFreq;
-			avgFieldLength = (float) numberOfFieldTokens / numberOfDocuments;
-		}
+        while (true) {
+            if (end > hits.length) {
+                System.out.println("Only results 1 - " + hits.length + " of " + numTotalHits
+                        + " total matching documents collected.");
+                System.out.println("Collect more (y/n) ?");
+                String line = in.readLine();
+                if (line.length() == 0 || line.charAt(0) == 'n') {
+                    break;
+                }
 
-		myStats.setNumberOfDocuments(numberOfDocuments);
-		myStats.setNumberOfFieldTokens(numberOfFieldTokens);
-		myStats.setAvgFieldLength(avgFieldLength);
-		myStats.setDocFreq(docFreq);
-		myStats.setTotalTermFreq(totalTermFreq);
+                hits = searcher.search(query, numTotalHits).scoreDocs;
+            }
 
-		return myStats;
-	}
+            end = Math.min(hits.length, start + hitsPerPage);
 
-	public static List<ResultItem> highlightResults(IndexReader reader, IndexSearcher searcher, Query query, TopDocs hits,
-			Analyzer analyzer) throws IOException, InvalidTokenOffsetsException {
+            for (int i = start; i < end; i++) {
+                if (raw) { // output raw format
+                    System.out.println("doc=" + hits[i].doc + " score=" + hits[i].score);
+                    continue;
+                }
 
-		List<ResultItem> results = new ArrayList<ResultItem>();
-		
-		// Uses HTML &lt;B&gt;&lt;/B&gt; tag to highlight the searched terms
-		Formatter formatter = new SimpleHTMLFormatter();
+                Document doc = searcher.doc(hits[i].doc);
+                String path = doc.get("path");
+                if (path != null) {
+                    System.out.println((i + 1) + ". " + path);
+                    String title = doc.get("title");
+                    if (title != null) {
+                        System.out.println("   Title: " + doc.get("title"));
+                    }
+                } else {
+                    System.out.println((i + 1) + ". " + "No path for this document");
+                }
 
-		// It scores text fragments by the number of unique query terms found
-		// Basically the matching score in layman terms
-		QueryScorer scorer = new QueryScorer(query);
+            }
 
-		// used to markup highlighted terms found in the best sections of a text
-		Highlighter highlighter = new Highlighter(formatter, scorer);
+            if (!interactive || end == 0) {
+                break;
+            }
 
-		// It breaks text up into same-size texts but does not split up spans
-		Fragmenter fragmenter = new SimpleSpanFragmenter(scorer, 50);
+            if (numTotalHits >= end) {
+                boolean quit = false;
+                while (true) {
+                    System.out.print("Press ");
+                    if (start - hitsPerPage >= 0) {
+                        System.out.print("(p)revious page, ");
+                    }
+                    if (start + hitsPerPage < numTotalHits) {
+                        System.out.print("(n)ext page, ");
+                    }
+                    System.out.println("(q)uit or enter number to jump to a page.");
 
-		// breaks text up into same-size fragments with no concerns over
-		// spotting sentence boundaries.
-		// Fragmenter fragmenter = new SimpleFragmenter(10);
+                    String line = in.readLine();
+                    if (line.length() == 0 || line.charAt(0) == 'q') {
+                        quit = true;
+                        break;
+                    }
+                    if (line.charAt(0) == 'p') {
+                        start = Math.max(0, start - hitsPerPage);
+                        break;
+                    } else if (line.charAt(0) == 'n') {
+                        if (start + hitsPerPage < numTotalHits) {
+                            start += hitsPerPage;
+                        }
+                        break;
+                    } else {
+                        int page = Integer.parseInt(line);
+                        if ((page - 1) * hitsPerPage < numTotalHits) {
+                            start = (page - 1) * hitsPerPage;
+                            break;
+                        } else {
+                            System.out.println("No such page");
+                        }
+                    }
+                }
+                if (quit)
+                    break;
+                end = Math.min(numTotalHits, start + hitsPerPage);
+            }
+        }
+    }
 
-		// set fragmenter to highlighter
-		highlighter.setTextFragmenter(fragmenter);
-
-		// Iterate over found results
-		for (int i = 0; i < hits.scoreDocs.length; i++) {
-			
-			List<String> paragraphs = new ArrayList<String>();
-			
-			int docid = hits.scoreDocs[i].doc;
-			Document doc = searcher.doc(docid);
-			String path = doc.get("path");
-			String title = doc.get("title");
-			String author = doc.get("author");
-			
-			ResultItem item = new ResultItem();
-			item.setTitle(title);
-			item.setAuthor(author);
-			item.setParagraphs(paragraphs);
-			
-			// Printing - to which document result belongs
-			System.out.println("Path " + " : " + path);
-
-			// Get stored text from found document
-			String text = doc.get("contents");
-
-			// Create token stream
-			TokenStream stream = TokenSources.getAnyTokenStream(reader, docid, "contents", analyzer);
-
-			// Get highlighted text fragments
-			String[] frags = highlighter.getBestFragments(stream, text, 20);
-			for (String f : frags) {
-				paragraphs.add(f);
-			}
-			
-			results.add(item);
-		}
-		
-		return results;
-	}
 }

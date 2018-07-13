@@ -3,6 +3,7 @@
 <head>
     <title>Corpus Biblioteca Virtual Miguel de Cervantes</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="shortcut icon" href="http://www.cervantesvirtual.com/favicon.ico" type="image/x-icon"/>
     
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css"></link>
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
@@ -10,7 +11,16 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
     
     <style>
-    .card-text {text-align: justify;}
+    .highlight {font-size: 0.8em; margin-bottom: 0em; margin-left: 1.5em;}
+    .author {font-size: 0.8em; margin-bottom: 0;}
+    .card-text {font-size: 0.8em;}
+    .card-title {font-size: 0.8em;}
+    .title {font-weigth: bold; color: #990b0c}
+    .title:hover {font-weigth: bold; color: #990b0c} 
+    .container {margin-top: 80px;}
+    img {width: 100%;}
+    .result-item {border-bottom: 2px solid #EEEEEE; padding: 0.5em;}
+    .paragraphs {margin-top: 0.6em;}
     </style>
     
 </head>
@@ -25,7 +35,7 @@
       <div class="collapse navbar-collapse" id="navbarsExampleDefault">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item">
-            <a class="nav-link" href="#">Descripción</a>
+            <a class="nav-link" href="#" th:href="@{/description}">Descripción</a>
           </li>
         </ul>
         <form class="form-inline my-2 my-lg-0" action="#" th:action="@{/corpus}" th:object="${searchModel}" method="post">
@@ -36,42 +46,60 @@
       </div>
     </nav>
 
-    <div class="container" style="margin-top: 80px;">
-				
-		<div class="row">
-		     <div class="col-8">
-                <div class="card">
-					  <div class="card-header">
-					    Listado de resultados
-					  </div>
-					  <div class="card-body" th:each="hit : ${searchModel.hits}">
-					    <h5 class="card-title" th:text="${hit.title + ' | ' + hit.author}"></h5>
-                        <p class="card-text" th:each="t : ${hit.paragraphs}" th:utext="${t}" />
+    <div class="container">
+                
+        <div class="row">
+             <div class="col-12 col-md-8">
+                  <div class="row result-item" th:each="hit : ${searchModel.hits}">
+                      <div class="col-6 col-md-2">    
+                          <img th:attr="src=@{${'http://www.cervantesvirtual.com/obra/' + hit.slug + '/portada/Max.jpg'}},title=${hit.title + ' | ' + hit.author},alt=${hit.title + ' | ' + hit.author}"/>
                       </div>
-				 </div>
+                      <div class="col-12 col-md-10">
+                        <a target="_blank" th:href="${'http://www.cervantesvirtual.com/obra/' + hit.slug}" class="title" th:text="${hit.title}"></a>    
+                        <p class="author" th:text="${hit.author}"></p>
+                        <a target="_blank" th:href="${'http://www.cervantesvirtual.com/obra-visor/' + hit.slug + '/html/'}"><span class="badge badge-light">HTML</span></a>
+                        <a target="_blank" th:href="${'http://data.cervantesvirtual.com/work/' + hit.workdata}"><span class="badge badge-light">RDF</span></a>
+                        <a target="_blank" th:href="${'https://www.wikidata.org/wiki/' + hit.wikidata}"><span class="badge badge-light">Wikidata</span></a>
+                        
+                        <div class="paragraphs">
+                            <p class="highlight" th:each="t : ${hit.paragraphs}" th:utext="${'...' + t + '...'}"></p>
+                        </div>
+                      </div>
+                  </div>
              </div>
-		
-             <div class="col-4">
+        
+             <div class="col-12 col-md-4" th:if="${not #lists.isEmpty(searchModel.hits)}">
              
-	             <div class="card">
-					  <div class="card-header">
-					    Estadísticas
-					  </div>
-					  <div class="card-body">
-					    <h5 class="card-title">Texto de búsqueda: <span th:text="${searchModel.queryString}"></span></h5>
-					    <p class="card-text">Longitud media del campo <span class="badge badge-info">AvgFieldLength</span>: <span th:text="${searchModel.stats.avgFieldLength}"></span></p>
-					    <p class="card-text">Número total de tokens en el campo <span class="badge badge-info">NumberOfFieldTokens</span>: <span th:text="${searchModel.stats.numberOfFieldTokens}"></span></p>
-					    <p class="card-text">Número de documentos: <span th:text="${searchModel.stats.numberOfDocuments}"></span></p>
-					    <p class="card-text">Número de documentos que contiene al menos una ocurrencia del término <span class="badge badge-info">docFreq</span>: <span th:text="${searchModel.stats.docFreq}" th:if="${searchModel.stats.docFreq > 0}"></span></p>
-  					    <p class="card-text">Número de ocurrencias del término en todos los documentos <span class="badge badge-info">TotalTermFreq</span>: <span th:text="${searchModel.stats.totalTermFreq}" th:if="${searchModel.stats.totalTermFreq > 0}"></span></p>
-					    <a href="corpus" class="btn btn-danger">Realizar otra búsqueda</a>
-					  </div>
-				 </div>
+                 <div class="card">
+                      <div class="card-header">
+                        Estadísticas
+                      </div>
+                      <div class="card-body">
+                        <h5 class="card-title">Texto de búsqueda: <span th:text="${searchModel.queryString}"></span></h5>
+                        <p class="card-text">Longitud media del campo <span class="badge badge-info">AvgFieldLength</span>: <span th:text="${searchModel.stats.avgFieldLength}"></span></p>
+                        <p class="card-text">Número total de tokens en el campo <span class="badge badge-info">NumberOfFieldTokens</span>: <span th:text="${searchModel.stats.numberOfFieldTokens}"></span></p>
+                        <p class="card-text">Número de documentos: <span th:text="${searchModel.stats.numberOfDocuments}"></span></p>
+                        <p th:if="${searchModel.stats.docFreq > 0}" class="card-text">Número de documentos que contiene al menos una ocurrencia del término <span class="badge badge-info">docFreq</span>: <span th:text="${searchModel.stats.docFreq}"></span></p>
+                          <p th:if="${searchModel.stats.totalTermFreq > 0}" class="card-text">Número de ocurrencias del término en todos los documentos <span class="badge badge-info">TotalTermFreq</span>: <span th:text="${searchModel.stats.totalTermFreq}"></span></p>
+                        <a href="corpus" class="btn btn-danger">Realizar otra búsqueda</a>
+                      </div>
+                 </div>
              
              </div>
+             
+             <div class="col-12" th:if="${#lists.isEmpty(searchModel.hits)}">
+                 <h2>No hay resultados para la cadena <span th:text="${searchModel.queryString}"></span></h2>
+                 
+                 <form action="#" th:action="@{/corpus}" th:object="${searchModel}" method="post">
+		            <p>Texto de búsqueda: <input type="text" th:field="*{queryString}" /></p>
+		            <p>Número de resultados: <input type="text" th:field="*{hitsPerPage}" th:value="*{hitsPerPage}" /></p>
+		            <p><input class="btn btn-danger btn-lg" type="submit" value="Buscar" /></p>
+		        </form>
+             </div>
+             
              
         </div>    
-	</div>
-		
+    </div>
+        
 </body>
 </html>

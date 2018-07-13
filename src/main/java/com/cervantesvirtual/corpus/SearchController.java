@@ -11,10 +11,16 @@ import com.cervantesvirtual.index.SearchFiles;
 @Controller
 public class SearchController {
 
-	@RequestMapping(method = RequestMethod.GET, produces = "text/html")
+	@RequestMapping(value = "corpus", method = RequestMethod.GET, produces = "text/html")
     public String searchForm(Model model) {
         model.addAttribute("searchModel", new SearchModel());
         return "corpus";
+    }
+	
+	@RequestMapping(value = "description", method = RequestMethod.GET, produces = "text/html")
+    public String description(Model model) {
+        model.addAttribute("searchModel", new SearchModel());
+        return "description";
     }
 
 	@RequestMapping(method = RequestMethod.POST, produces = "text/html")

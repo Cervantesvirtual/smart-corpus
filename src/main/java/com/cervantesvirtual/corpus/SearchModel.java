@@ -10,9 +10,13 @@ public class SearchModel {
     private BasicStats stats;
     private int hitsPerPage;
     private List<ResultItem> hits;
+    private int fragmentNumber;
+    private int fragmentSize;
     
     public SearchModel(){
     	hitsPerPage = 10;
+    	fragmentNumber = 5;
+    	fragmentSize = 75;
     }
 
 	public String getQueryString() {
@@ -45,6 +49,22 @@ public class SearchModel {
 
 	public void setHits(List<ResultItem> hits) {
 		this.hits = hits;
+	}
+
+	public int getFragmentNumber() {
+		return fragmentNumber;
+	}
+
+	public void setFragmentNumber(int fragmentNumber) {
+		this.fragmentNumber = fragmentNumber;
+	}
+
+	public int getFragmentSize() {
+		return fragmentSize;
+	}
+
+	public void setFragmentSize(int fragmentSize) {
+		this.fragmentSize = fragmentSize;
 	}
 
 }

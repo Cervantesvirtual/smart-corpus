@@ -9,8 +9,11 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
 import org.apache.lucene.document.LongPoint;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -25,6 +28,7 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
 import com.cervantesvirtual.analyzer.SynonymIndexAnalyzer;
+import com.cervantesvirtual.analyzer.TextAnalyzer;
 
 /** Index all text files under a directory.
  * <p>
@@ -34,6 +38,16 @@ import com.cervantesvirtual.analyzer.SynonymIndexAnalyzer;
 public class IndexFiles {
   
   private IndexFiles() {}
+  
+  public static IndexWriterConfig getLuceneConfig() {
+     Map<String, Analyzer> analyzerMap = new HashMap<String, Analyzer>();
+     analyzerMap.put("contents-simple", new TextAnalyzer());
+	   
+     PerFieldAnalyzerWrapper wrapper = new PerFieldAnalyzerWrapper(new SynonymIndexAnalyzer(), analyzerMap);
+		
+     IndexWriterConfig luceneConfig = new IndexWriterConfig(wrapper);
+     return luceneConfig;
+  }
 
   /** Index all text files under a directory. */
   public static void main(String[] args) {
@@ -52,9 +66,10 @@ public class IndexFiles {
       System.out.println("Indexing to directory '" + indexPath + "'...");
 
       Directory dir = FSDirectory.open(Paths.get(indexPath));
-      Analyzer analyzer = new SynonymIndexAnalyzer();
+      //Analyzer analyzer = new SynonymIndexAnalyzer();
+      //IndexWriterConfig iwc = new IndexWriterConfig(analyzer);
       
-      IndexWriterConfig iwc = new IndexWriterConfig(analyzer);
+      IndexWriterConfig iwc = IndexFiles.getLuceneConfig();
 
       if (create) {
         // Create a new index in the directory, removing any
@@ -142,9 +157,22 @@ public class IndexFiles {
       
       String title = "";
       String author = "";
+      String slug = "";
+      String wikidata = "";
+      String workdata = "";
       if("src/main/resources/txtfiles/ff498544-82b1-11df-acc7-002185ce6064.txt".equals(file.toString())){
     	  title = "Doña perfecta";
     	  author = "Pérez Galdós, Benito";
+    	  slug = "dona-perfecta-novela-original--0";
+    	  wikidata = "Q476558";
+    	  workdata = "19037";
+      }
+      if("src/main/resources/txtfiles/ejemplo.txt".equals(file.toString())){
+    	  title = "Ejemplo";
+    	  author = "Gustavo Candela";
+    	  slug = "dona-perfecta-novela-original--0";
+    	  wikidata = "Q476558";
+    	  workdata = "19037";
       }
       System.out.println("Indexing:" + title);
             
@@ -153,6 +181,15 @@ public class IndexFiles {
       
       Field authorField = new StringField("author", author, Field.Store.YES);
       doc.add(authorField);
+      
+      Field slugField = new StringField("slug", slug, Field.Store.YES);
+      doc.add(slugField);
+      
+      Field workdataField = new StringField("workdata", workdata, Field.Store.YES);
+      doc.add(workdataField);
+      
+      Field wikidataField = new StringField("wikidata", wikidata, Field.Store.YES);
+      doc.add(wikidataField);
       
       // Add the last modified date of the file a field named "modified".
       // Use a LongPoint that is indexed (i.e. efficiently filterable with
@@ -163,13 +200,11 @@ public class IndexFiles {
       // February , , - PM.
       doc.add(new LongPoint("modified", lastModified));
       
-      
-      
       // Add the contents of the file to a field named "contents".  Specify a Reader,
       // so that the text of the file is tokenized and indexed, but not stored.
       // Note that FileReader expects the file to be in UTF- encoding.
       // If that's not the case searching for special characters will fail.
-      //doc.add(new TextField("contents", new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))));
+      doc.add(new TextField("contents-simple", new String(Files.readAllBytes(file)), Store.YES));
       doc.add(new TextField("contents", new String(Files.readAllBytes(file)), Store.YES));
       
       if (writer.getConfig().getOpenMode() == OpenMode.CREATE) {

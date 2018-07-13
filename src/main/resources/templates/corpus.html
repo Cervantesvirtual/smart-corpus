@@ -3,6 +3,7 @@
 <head>
     <title>Corpus Biblioteca Virtual Miguel de Cervantes</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="shortcut icon" href="http://www.cervantesvirtual.com/favicon.ico" type="image/x-icon"/>
  
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css"></link>
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
@@ -21,7 +22,7 @@
       <div class="collapse navbar-collapse" id="navbarsExampleDefault">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item">
-            <a class="nav-link" href="#">Descripción</a>
+            <a class="nav-link" href="#" th:href="@{/description}">Descripción</a>
           </li>
         </ul>
         <form class="form-inline my-2 my-lg-0" action="#" th:action="@{/corpus}" th:object="${searchModel}" method="post">
@@ -33,8 +34,8 @@
     </nav>
     
     <div class="jumbotron">
-        <h1 class="display-4">Corpus de la Biblioteca Virtual Miguel de Cervantes</h1>
-        <p class="lead">Esta aplicación permite buscar en los contenidos de la BVMC.</p>
+        <h1 class="display-4">Corpus de Miguel de Cervantes Saavedra de la Biblioteca Virtual Miguel de Cervantes</h1>
+        <p class="lead">Esta aplicación permite buscar en los contenidos de la BVMC pertenecientes a Miguel de Cervantes Saavedra.</p>
         <hr class="my-4"/>
         
         <span style="float: left;margin-top: 5px;margin-right: 5px;">Ejemplos de búsqueda :</span>
@@ -58,10 +59,15 @@
           <input type="hidden" th:field="*{hitsPerPage}" th:value="*{hitsPerPage}" />
           <button class="btn btn-outline-danger my-2 my-sm-0" type="submit">pos#noun</button>
         </form> 
-		<form class="form-inline my-2 my-lg-0" action="#" th:action="@{/corpus}" th:object="${searchModel}" method="post">
+		<form style="float:left" class="form-inline my-2 my-lg-0" action="#" th:action="@{/corpus}" th:object="${searchModel}" method="post">
           <input type="hidden" name="queryString" value="pos#verb lemma#decir"/>
           <input type="hidden" th:field="*{hitsPerPage}" th:value="*{hitsPerPage}" />
           <button class="btn btn-outline-danger my-2 my-sm-0" type="submit">pos#verb lemma#decir</button>
+        </form>
+		<form class="form-inline my-2 my-lg-0" action="#" th:action="@{/corpus}" th:object="${searchModel}" method="post">
+          <input type="hidden" name="queryString" value="pos#adjective pos#verb de"/>
+          <input type="hidden" th:field="*{hitsPerPage}" th:value="*{hitsPerPage}" />
+          <button class="btn btn-outline-danger my-2 my-sm-0" type="submit">pos#adjective pos#verb de</button>
         </form>
         <hr class="my-4"/>
         
@@ -168,7 +174,7 @@
 			          <input type="hidden" th:field="*{hitsPerPage}" th:value="*{hitsPerPage}" />
 			          <button class="btn btn-outline-danger my-2 my-sm-0" type="submit">pos#verb</button>
 			        </form>
-                    <a href="https://talp-upc.gitbooks.io/freeling-4-0-user-manual/content/tagsets/tagset-es.html#part-of-speech-pronoun" target="_blank" class="card-link">Leer más</a>
+                    <a href="https://talp-upc.gitbooks.io/freeling-4-0-user-manual/content/tagsets/tagset-es.html#part-of-speech-verb" target="_blank" class="card-link">Leer más</a>
                 </div>
             </div>
             <div class="card">
